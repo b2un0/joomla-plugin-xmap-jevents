@@ -12,9 +12,15 @@ defined('_JEXEC') or die;
 require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
 
 final class xmap_com_jevents {
-
+	
 	public function getTree(&$xmap, &$parent, &$params) {
-		$include_events = JArrayHelper::getValue($params, 'include_events', 1);
+		$item = JFactory::getApplication()->getMenu()->getItem($parent->id);
+		
+		if(empty($item) || $item->query['view'] != 'cat') {
+			return;
+		}
+		
+		$include_events = JArrayHelper::getValue($params, 'include_events');
 		$include_events = ($include_events == 1 || ($include_events == 2 && $xmap->view == 'xml') || ($include_events == 3 && $xmap->view == 'html'));
 		$params['include_events'] = $include_events;
 		
@@ -51,27 +57,22 @@ final class xmap_com_jevents {
 		
 		$params['event_priority'] = $priority;
 		$params['event_changefreq'] = $changefreq;
-
-		// Backup the original datamodel to restore it later
-		$datamodel = JevRegistry::getInstance('jevents')->getReference('jevents.datamodel', false);
-
-		self::getCategoryTree ($xmap, $parent, $params, 1);
-
-		// Restore the original datamodel to avoid problems with modules or plugins
-		JevRegistry::getInstance('jevents')->setReference('jevents.datamodel', $datamodel);
 		
-		return true;
+		if(is_array($item->params->get('catidnew'))) {
+			self::getCategoryTree($xmap, $parent, $params, $item->params->get('catidnew'));
+		}else{
+			self::getCategoryTree($xmap, $parent, $params, array(1));
+		}
 	}
 
-	private static function getCategoryTree(&$xmap, &$parent, &$params, $parent_id) {
+	private static function getCategoryTree(&$xmap, &$parent, &$params, array $catids) {
 		$db = JFactory::getDBO();
-		$my = JFactory::getUser();
 	
 		$query = $db->getQuery(true)
 				->select(array('id', 'title', 'parent_id'))
 				->from('#__categories')
 				->where('extension = ' . $db->Quote('com_jevents'))
-				->where('parent_id = ' . $db->quote($parent_id))
+				->where('parent_id IN(' . implode(',', $catids) . ')')
 				->order('lft');
 		
 		if (!$params['show_unauth']) {
@@ -96,11 +97,10 @@ final class xmap_com_jevents {
 			$node->priority = $params['category_priority'];
 			$node->changefreq = $params['category_changefreq'];
 			$node->pid = $row->parent_id;
-			// TODO - Itemid fehlt
-			$node->link = 'index.php?option=com_jevents&task=cat.listevents&offset=1&category_fv='.$row->id;
+			$node->link = 'index.php?option=com_jevents&task=cat.listevents&offset=1&category_fv=' . $row->id . '&Itemid=' . $parent->id;
 			
 			if ($xmap->printNode($node) !== false) {
-				self::getCategoryTree($xmap, $parent, $params, $row->id);
+				self::getCategoryTree($xmap, $parent, $params, array($row->id));
 				if ($params['include_events']) {
 					self::getEvents($xmap, $parent, $params, $row->id);
 				}
@@ -117,16 +117,11 @@ final class xmap_com_jevents {
 			$datamodel = new JEventsDataModel;
 		}
 		
-		// TODO - hier stimmt was bei der Übergabe der catid nicht - wird ignoriert?
-		$rows = $datamodel->getCatData(array($catid));
-		
-		return;
+		$rows = $datamodel->queryModel->listIcalEventsByCat(array($catid));
 		
 		if(empty($rows)) {
 			return;
 		}
-		
-		$rows = $rows['rows'];
 		
 		$xmap->changeLevel(1);
 		
