@@ -13,7 +13,7 @@ require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
 
 final class xmap_com_jevents {
 	
-	public function getTree(&$xmap, &$parent, &$params) {
+	public static function getTree(&$xmap, &$parent, &$params) {
 		$item = JFactory::getApplication()->getMenu()->getItem($parent->id);
 		
 		if(empty($item) || $item->query['view'] != 'cat') {
