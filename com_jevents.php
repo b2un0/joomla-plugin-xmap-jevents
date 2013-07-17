@@ -45,7 +45,7 @@ final class xmap_com_jevents {
 		$params['category_changefreq'] = $changefreq;
 		
 		$priority = JArrayHelper::getValue($params, 'event_priority', $parent->priority);
-		$changefreq = JArrayHelper::getValue($params, 'event_priority', $parent->changefreq);
+		$changefreq = JArrayHelper::getValue($params, 'event_changefreq', $parent->changefreq);
 		
 		if($priority == -1) {
 			$priority = $parent->priority;
@@ -131,8 +131,8 @@ final class xmap_com_jevents {
 			$node->name = $row->title();
 			$node->uid = $parent->uid . '_' . $row->id;
 			$node->browserNav = $parent->browserNav;
-			$node->priority = $params['image_priority'];
-			$node->changefreq = $params['image_changefreq'];
+			$node->priority = $params['event_priority'];
+			$node->changefreq = $params['event_changefreq'];
 			$node->link = $row->viewDetailLink($row->yup(), $row->mup(), $row->dup(), false);
 				
 			$xmap->printNode($node);
