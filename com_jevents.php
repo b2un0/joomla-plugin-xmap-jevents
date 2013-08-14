@@ -13,7 +13,7 @@ require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
 
 final class xmap_com_jevents {
 	
-	public static function getTree(&$xmap, &$parent, &$params) {
+	public static function getTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params) {
 		$item = JFactory::getApplication()->getMenu()->getItem($parent->id);
 		
 		if(empty($item) || $item->query['view'] != 'cat') {
@@ -65,7 +65,7 @@ final class xmap_com_jevents {
 		}
 	}
 
-	private static function getCategoryTree(&$xmap, &$parent, &$params, array $catids) {
+	private static function getCategoryTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params, array $catids) {
 		$db = JFactory::getDBO();
 	
 		$query = $db->getQuery(true)
@@ -110,7 +110,7 @@ final class xmap_com_jevents {
 		$xmap->changeLevel(-1);
 	}
 
-	private static function getEvents(&$xmap, &$parent, &$params, $catid) {
+	private static function getEvents(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $catid) {
 		static $datamodel;
 		
 		if (!$datamodel) {
