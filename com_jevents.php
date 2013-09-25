@@ -9,54 +9,54 @@
  
 defined('_JEXEC') or die;
 
-require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
-
 final class xmap_com_jevents {
+	
+	private static $enabled = false;
+	
+	public function __construct() {
+		self::$enabled = JComponentHelper::isEnabled('com_jevents');
+	
+		if(self::$enabled) {
+			require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
+		}
+	}
 	
 	public static function getTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params) {
 		$item = JFactory::getApplication()->getMenu()->getItem($parent->id);
 		
-		if(empty($item) || $item->query['view'] != 'cat') {
+		if(!self::$enabled || empty($item) || $item->query['view'] != 'cat') {
 			return;
 		}
-		
-		$include_events = JArrayHelper::getValue($params, 'include_events');
-		$include_events = ($include_events == 1 || ($include_events == 2 && $xmap->view == 'xml') || ($include_events == 3 && $xmap->view == 'html'));
-		$params['include_events'] = $include_events;
-		
-		$show_unauth = JArrayHelper::getValue($params, 'show_unauth');
-		$show_unauth = ($show_unauth == 1 || ( $show_unauth == 2 && $xmap->view == 'xml') || ( $show_unauth == 3 && $xmap->view == 'html'));
-		$params['show_unauth'] = $show_unauth;
-		
+
 		$params['groups'] = implode(',', JFactory::getUser()->getAuthorisedViewLevels());
 		
-		$priority = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
-		$changefreq = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
+		$params['include_events'] = JArrayHelper::getValue($params, 'include_events', 1);
+		$params['include_events'] = ($params['include_events'] == 1 || ($params['include_events'] == 2 && $xmap->view == 'xml') || ($params['include_events'] == 3 && $xmap->view == 'html'));
 		
-		if($priority == -1) {
-			$priority = $parent->priority;
+		$params['show_unauth'] = JArrayHelper::getValue($params, 'show_unauth', 0);
+		$params['show_unauth'] = ($params['show_unauth'] == 1 || ( $params['show_unauth'] == 2 && $xmap->view == 'xml') || ( $params['show_unauth'] == 3 && $xmap->view == 'html'));
+		
+		$params['category_priority'] = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
+		$params['category_changefreq'] = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
+		
+		if($params['category_priority'] == -1) {
+			$params['category_priority'] = $parent->priority;
 		}
 		
-		if($changefreq == -1) {
-			$changefreq = $parent->changefreq;
+		if($params['category_changefreq'] == -1) {
+			$params['category_changefreq'] = $parent->changefreq;
 		}
 		
-		$params['category_priority'] = $priority;
-		$params['category_changefreq'] = $changefreq;
+		$params['event_priority'] = JArrayHelper::getValue($params, 'event_priority', $parent->priority);
+		$params['event_changefreq'] = JArrayHelper::getValue($params, 'event_changefreq', $parent->changefreq);
 		
-		$priority = JArrayHelper::getValue($params, 'event_priority', $parent->priority);
-		$changefreq = JArrayHelper::getValue($params, 'event_changefreq', $parent->changefreq);
-		
-		if($priority == -1) {
-			$priority = $parent->priority;
+		if($params['event_priority'] == -1) {
+			$params['event_priority'] = $parent->priority;
 		}
 		
-		if($changefreq == -1) {
-			$changefreq = $parent->changefreq;
+		if($params['event_changefreq'] == -1) {
+			$params['event_changefreq'] = $parent->changefreq;
 		}
-		
-		$params['event_priority'] = $priority;
-		$params['event_changefreq'] = $changefreq;
 		
 		if(is_array($item->params->get('catidnew'))) {
 			self::getCategoryTree($xmap, $parent, $params, $item->params->get('catidnew'));

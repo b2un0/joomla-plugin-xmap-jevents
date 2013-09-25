@@ -19,7 +19,7 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="include_events" type="list" default="0" label="XMAP_SETTING_INCLUDE_EVENTS_LABEL" description="XMAP_SETTING_INCLUDE_EVENTS_DESC">
+				<field name="include_events" type="list" default="1" label="XMAP_SETTING_INCLUDE_EVENTS_LABEL" description="XMAP_SETTING_INCLUDE_EVENTS_DESC">
 					<option value="0">XMAP_OPTION_NEVER</option>
 					<option value="1">XMAP_OPTION_ALWAYS</option>
 					<option value="2">XMAP_OPTION_XML_ONLY</option>
@@ -39,7 +39,7 @@
 					<option value="0.9">0.9</option>
 					<option value="1">1</option>
 				</field>
-				<field name="category_changefreq" type="list" default="-1" label="XMAP_SETTING_CATEGORY_CHANCE_FREQ_LABEL" description="XMAP_SETTING_CATEGORY_CHANCE_FREQ_DESC">
+				<field name="category_changefreq" type="list" default="-1" label="XMAP_SETTING_CATEGORY_CHANGE_FREQ_LABEL" description="XMAP_SETTING_CATEGORY_CHANGE_FREQ_DESC">
 					<option value="-1">XMAP_OPTION_USE_PARENT_MENU</option>
 					<option value="always">XMAP_OPTION_ALWAYS</option>
 					<option value="hourly">XMAP_OPTION_HOURLY</option>
@@ -63,7 +63,7 @@
 					<option value="0.9">0.9</option>
 					<option value="1">1</option>
 				</field>
-				<field name="event_changefreq" type="list" default="-1" label="XMAP_SETTING_EVENT_CHANCE_FREQ_LABEL" description="XMAP_SETTING_EVENT_CHANCE_FREQ_DESC">
+				<field name="event_changefreq" type="list" default="-1" label="XMAP_SETTING_EVENT_CHANGE_FREQ_LABEL" description="XMAP_SETTING_EVENT_CHANGE_FREQ_DESC">
 					<option value="-1">XMAP_OPTION_USE_PARENT_MENU</option>
 					<option value="always">XMAP_OPTION_ALWAYS</option>
 					<option value="hourly">XMAP_OPTION_HOURLY</option>
