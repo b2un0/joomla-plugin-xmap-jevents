@@ -77,6 +77,6 @@
 		</fields>
 	</config>
 	<updateservers>
-		<server type="extension" priority="1" name="Xmap - JEvents">http://www.z-index.net/en/joomla-xmap-plugins/xmap-jevents/updatestream.xml</server>
+		<server type="collection" priority="1" name="z-index development">http://www.z-index.net/en/extensions.xml</server>
 	</updateservers>
 </extension>
