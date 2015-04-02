@@ -11,22 +11,34 @@ defined('_JEXEC') or die;
 
 class xmap_com_jevents
 {
+    /**
+     * @var bool
+     */
     private static $enabled = false;
 
     public function __construct()
     {
         self::$enabled = JComponentHelper::isEnabled('com_jevents');
 
-        if (self::$enabled) {
+        if (self::$enabled)
+        {
             require_once JPATH_SITE . '/components/com_jevents/jevents.defines.php';
         }
     }
 
-    public static function getTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     *
+     * @throws Exception
+     */
+    public static function getTree($xmap, stdClass $parent, array &$params)
     {
         $item = JFactory::getApplication()->getMenu()->getItem($parent->id);
 
-        if (!self::$enabled || empty($item) || $item->query['view'] != 'cat') {
+        if (!self::$enabled || empty($item) || $item->query['view'] != 'cat')
+        {
             return;
         }
 
@@ -41,33 +53,45 @@ class xmap_com_jevents
         $params['category_priority'] = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
         $params['category_changefreq'] = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
 
-        if ($params['category_priority'] == -1) {
+        if ($params['category_priority'] == -1)
+        {
             $params['category_priority'] = $parent->priority;
         }
 
-        if ($params['category_changefreq'] == -1) {
+        if ($params['category_changefreq'] == -1)
+        {
             $params['category_changefreq'] = $parent->changefreq;
         }
 
         $params['event_priority'] = JArrayHelper::getValue($params, 'event_priority', $parent->priority);
         $params['event_changefreq'] = JArrayHelper::getValue($params, 'event_changefreq', $parent->changefreq);
 
-        if ($params['event_priority'] == -1) {
+        if ($params['event_priority'] == -1)
+        {
             $params['event_priority'] = $parent->priority;
         }
 
-        if ($params['event_changefreq'] == -1) {
+        if ($params['event_changefreq'] == -1)
+        {
             $params['event_changefreq'] = $parent->changefreq;
         }
 
-        if (is_array($item->params->get('catidnew'))) {
+        if (is_array($item->params->get('catidnew')))
+        {
             self::getCategoryTree($xmap, $parent, $params, $item->params->get('catidnew'));
-        } else {
+        } else
+        {
             self::getCategoryTree($xmap, $parent, $params, array(1));
         }
     }
 
-    private static function getCategoryTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params, array $catids)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     * @param array $catids
+     */
+    private static function getCategoryTree($xmap, $parent, array &$params, array $catids)
     {
         $db = JFactory::getDBO();
 
@@ -78,20 +102,23 @@ class xmap_com_jevents
             ->where('parent_id IN(' . implode(',', $catids) . ')')
             ->order('lft');
 
-        if (!$params['show_unauth']) {
+        if (!$params['show_unauth'])
+        {
             $query->where('access IN(' . $params['groups'] . ')');
         }
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
 
-        if (empty($rows)) {
+        if (empty($rows))
+        {
             return;
         }
 
         $xmap->changeLevel(1);
 
-        foreach ($rows as $row) {
+        foreach ($rows as $row)
+        {
             $node = new stdclass;
             $node->id = $parent->id;
             $node->name = $row->title;
@@ -102,9 +129,11 @@ class xmap_com_jevents
             $node->pid = $row->parent_id;
             $node->link = 'index.php?option=com_jevents&task=cat.listevents&offset=1&category_fv=' . $row->id . '&Itemid=' . $parent->id;
 
-            if ($xmap->printNode($node) !== false) {
+            if ($xmap->printNode($node) !== false)
+            {
                 self::getCategoryTree($xmap, $parent, $params, array($row->id));
-                if ($params['include_events']) {
+                if ($params['include_events'])
+                {
                     self::getEvents($xmap, $parent, $params, $row->id);
                 }
             }
@@ -113,23 +142,32 @@ class xmap_com_jevents
         $xmap->changeLevel(-1);
     }
 
-    private static function getEvents(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $catid)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     * @param $catid
+     */
+    private static function getEvents($xmap, $parent, array &$params, $catid)
     {
         static $datamodel;
 
-        if (!$datamodel) {
+        if (!$datamodel)
+        {
             $datamodel = new JEventsDataModel;
         }
 
         $rows = $datamodel->queryModel->listIcalEventsByCat(array($catid));
 
-        if (empty($rows)) {
+        if (empty($rows))
+        {
             return;
         }
 
         $xmap->changeLevel(1);
 
-        foreach ($rows as $row) {
+        foreach ($rows as $row)
+        {
             $node = new stdclass;
             $node->id = $parent->id;
             $node->name = $row->title();
